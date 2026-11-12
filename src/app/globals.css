@@ -1,0 +1,54 @@
+@import "tailwindcss" source(none);
+
+@source ".";
+@source "../components";
+
+:root {
+  --background: #f4f6f8;
+  --foreground: #141a24;
+  --card: #ffffff;
+  --line: #d7dde6;
+  --ink: #141a24;
+  --muted: #5e6874;
+  --accent: #5070f8;
+  --accent-soft: #eef1fe;
+  --money: #e8873a;
+  --danger: #9f2d2d;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-money: var(--money);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+}
+
+.row-actions {
+  position: sticky;
+  right: 0;
+  background: var(--card);
+}
+
+@media print {
+  body {
+    background: white;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}
