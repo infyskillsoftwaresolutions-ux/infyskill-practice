@@ -12,6 +12,7 @@ const items = [
   { href: "/colleges", label: "Colleges", hint: "Collaborations, programs, price" },
   { href: "/invoices", label: "Invoices", hint: "Generate and print" },
   { href: "/quotations", label: "Quotations", hint: "Quote and print" },
+  { href: "/practice", label: "Practice", hint: "College access" },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {

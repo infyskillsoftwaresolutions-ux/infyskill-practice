@@ -37,6 +37,38 @@ body {
   font-family: var(--font-sans), sans-serif;
 }
 
+.practice {
+  --background: #f6f5f1;
+  --foreground: #1c1e18;
+  --card: #fffcf8;
+  --line: #e3dfd4;
+  --ink: #1c1e18;
+  --muted: #6f6a60;
+  --accent: #1b6b4a;
+  --accent-soft: #e7f3ec;
+  --danger: #8f2e2e;
+  background: var(--background);
+  color: var(--ink);
+  min-height: 100%;
+}
+
+.practice :is(a, button).bg-accent:hover {
+  background-color: #15563b;
+}
+
+.practice-progress {
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.practice-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
 .row-actions {
   position: sticky;
   right: 0;
