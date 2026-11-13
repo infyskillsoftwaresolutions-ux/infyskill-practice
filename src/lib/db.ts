@@ -5,9 +5,11 @@ import { DatabaseSync } from "node:sqlite";
 const globalForDb = globalThis as unknown as { crmDb?: DatabaseSync; crmDbPath?: string };
 
 export function dataDirectory() {
-  const root = process.env.LOCALAPPDATA
-    ? path.join(process.env.LOCALAPPDATA, "infyskill-edutech-crm")
-    : path.join(process.cwd(), "data");
+  const root = process.env.VERCEL
+    ? path.join("/tmp", "infyskill-practice")
+    : process.env.LOCALAPPDATA
+      ? path.join(process.env.LOCALAPPDATA, "infyskill-edutech-crm")
+      : path.join(process.cwd(), "data");
   fs.mkdirSync(root, { recursive: true });
   return root;
 }
