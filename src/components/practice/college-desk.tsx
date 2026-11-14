@@ -17,8 +17,9 @@ import {
 import { CollegeMark } from "@/components/practice/college-mark";
 import { CollegeReportView } from "@/components/practice/college-report";
 import { MockBoard } from "@/components/practice/mock-board";
-import { ModuleBoard } from "@/components/practice/module-board";
+import { ModuleRail } from "@/components/practice/module-rail";
 import { usePracticeSite } from "@/components/practice/practice-site";
+import { collegeHref } from "@/lib/practice-host";
 import type { PracticeCollegeSummary, PracticeEmployee, PracticePerson } from "@/lib/practice";
 import type { PracticeAccess, PracticeInvoiceOption } from "@/lib/practice-access";
 import type { MockQuestionOption, MockResultRow, MockSummary } from "@/lib/practice-mocks";
@@ -64,7 +65,15 @@ export function CollegeDesk({
   const { onHost } = usePracticeSite();
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start">
+      <ModuleRail
+        role={role}
+        collegeId={college.id}
+        modules={modules}
+        homeHref={collegeHref(college.id, onHost)}
+        homeLabel="College"
+      />
+      <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <header>
         {onHost ? null : (
           <Link href="/practice" className="text-sm text-accent">
@@ -95,8 +104,6 @@ export function CollegeDesk({
         invoices={invoices}
         studentCount={college.studentCount}
       />
-
-      <ModuleBoard role={role} collegeId={college.id} modules={modules} />
 
       {report ? <CollegeReportView collegeId={college.id} report={report} /> : null}
 
@@ -146,7 +153,8 @@ export function CollegeDesk({
       ) : null}
 
       {canManage ? <EmployeeAccess collegeId={college.id} employees={employees} /> : null}
-    </main>
+      </main>
+    </div>
   );
 }
 

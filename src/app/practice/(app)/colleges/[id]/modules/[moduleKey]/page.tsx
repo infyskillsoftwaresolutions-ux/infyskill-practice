@@ -3,7 +3,7 @@ import { PracticeClosed } from "@/components/practice/practice-closed";
 import { QuestionList } from "@/components/practice/question-list";
 import { collegeAccessMessage, collegeReportOpen, readPracticeAccess, studentAccessMessage, studentsCanPractice } from "@/lib/practice-access";
 import { HOST_COLLEGE, moduleHref } from "@/lib/practice-host";
-import { listQuestions, moduleInfo } from "@/lib/practice-questions";
+import { listModuleCards, listQuestions, moduleInfo } from "@/lib/practice-questions";
 import { openCollege } from "@/lib/practice-site";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +69,7 @@ export default async function PracticeModulePage({ params }: { params: Promise<{
       moduleKey={moduleKey}
       moduleLabel={label}
       questions={questions}
+      modules={listModuleCards(gate.user, college.id)}
     />
   );
 }

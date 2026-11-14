@@ -6,9 +6,10 @@ import { useMemo, useState, useTransition } from "react";
 import { setPublishedAction } from "@/app/actions/practice-questions";
 import { CollegeMark } from "@/components/practice/college-mark";
 import { DifficultyLabel } from "@/components/practice/marks";
+import { ModuleRail } from "@/components/practice/module-rail";
 import { usePracticeSite } from "@/components/practice/practice-site";
 import { collegeHref, homeHref, moduleImportHref, moduleNewHref, questionHref } from "@/lib/practice-host";
-import type { QuestionListItem } from "@/lib/practice-questions";
+import type { ModuleCard, QuestionListItem } from "@/lib/practice-questions";
 import type { PracticeRole } from "@/lib/practice-auth";
 
 export function QuestionList({
@@ -20,6 +21,7 @@ export function QuestionList({
   moduleKey,
   moduleLabel,
   questions,
+  modules,
 }: {
   role: PracticeRole;
   collegeId: string;
@@ -29,6 +31,7 @@ export function QuestionList({
   moduleKey: string;
   moduleLabel: string;
   questions: QuestionListItem[];
+  modules: ModuleCard[];
 }) {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -63,8 +66,18 @@ export function QuestionList({
     });
   }
 
+  const overview = role === "student" ? homeHref(onHost) : collegeHref(collegeId, onHost);
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start">
+      <ModuleRail
+        role={role}
+        collegeId={collegeId}
+        modules={modules}
+        activeKey={moduleKey}
+        homeHref={overview}
+        homeLabel={role === "student" ? "Practice" : "College"}
+      />
+      <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <Link href={back} className="text-sm text-accent">
@@ -208,6 +221,7 @@ export function QuestionList({
           )}
         </>
       )}
-    </main>
+      </main>
+    </div>
   );
 }
