@@ -6,7 +6,7 @@ import { useState, useTransition } from "react";
 import { disableModuleAction, enableModuleAction } from "@/app/actions/practice-questions";
 import { ModuleMark } from "@/components/practice/marks";
 import { usePracticeSite } from "@/components/practice/practice-site";
-import { moduleHref } from "@/lib/practice-host";
+import { moduleHref, studentsHref } from "@/lib/practice-host";
 import type { PracticeRole } from "@/lib/practice-auth";
 import type { ModuleCard } from "@/lib/practice-questions";
 
@@ -17,6 +17,7 @@ export function ModuleRail({
   activeKey = "",
   homeHref,
   homeLabel,
+  studentCount = 0,
 }: {
   role: PracticeRole;
   collegeId: string;
@@ -24,6 +25,7 @@ export function ModuleRail({
   activeKey?: string;
   homeHref: string;
   homeLabel: string;
+  studentCount?: number;
 }) {
   const router = useRouter();
   const { onHost } = usePracticeSite();
@@ -120,7 +122,70 @@ export function ModuleRail({
           );
         })}
       </nav>
+      {role === "main_admin" || role === "college_admin" ? (
+        <div className="border-t border-line">
+          <div className="px-4 pb-2 pt-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">This college</p>
+          </div>
+          <nav className="flex gap-2 overflow-x-auto px-3 pb-4 lg:grid lg:gap-1 lg:overflow-visible lg:px-3 lg:pb-6">
+            <RailLink
+              href={studentsHref(collegeId, onHost)}
+              active={activeKey === "students"}
+              mark="S"
+              label="Students"
+              detail={`${studentCount} ${studentCount === 1 ? "student" : "students"}`}
+            />
+            {manage ? (
+              <RailLink
+                href={studentsHref(collegeId, onHost, "add")}
+                active={activeKey === "students-add"}
+                mark="+"
+                label="Add student"
+                detail="One at a time"
+              />
+            ) : null}
+            {manage ? (
+              <RailLink
+                href={studentsHref(collegeId, onHost, "upload")}
+                active={activeKey === "students-upload"}
+                mark="CSV"
+                label="Upload students"
+                detail="This college only"
+              />
+            ) : null}
+          </nav>
+        </div>
+      ) : null}
       {error ? <p className="px-4 pb-4 text-xs text-danger">{error}</p> : null}
     </aside>
+  );
+}
+
+function RailLink({
+  href,
+  active,
+  mark,
+  label,
+  detail,
+}: {
+  href: string;
+  active: boolean;
+  mark: string;
+  label: string;
+  detail: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`flex min-w-40 shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 lg:min-w-0 ${
+        active ? "bg-accent-soft text-accent" : "text-ink hover:bg-background"
+      }`}
+    >
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#1c1e18] text-[10px] font-semibold text-white">{mark}</span>
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-semibold">{label}</span>
+        <span className={`block truncate text-xs ${active ? "text-accent/80" : "text-muted"}`}>{detail}</span>
+      </span>
+    </Link>
   );
 }

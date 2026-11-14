@@ -18,6 +18,7 @@ export const RESERVED_SLUGS = new Set<string>([
   "logo",
   "report",
   "mock-report",
+  "students",
   "team",
   "host",
   "site",
@@ -78,6 +79,11 @@ export function questionHref(collegeId: string, key: string, onHost: boolean, mo
   return mockId ? `${path}?mock=${encodeURIComponent(mockId)}` : path;
 }
 
+export function studentsHref(collegeId: string, onHost: boolean, view: "" | "add" | "upload" = "") {
+  const tail = view ? `/${view}` : "";
+  return onHost ? `/students${tail}` : `/practice/colleges/${collegeId}/students${tail}`;
+}
+
 export function mockHref(collegeId: string, mockId: string, onHost: boolean) {
   return onHost ? `/mocks/${mockId}` : `/practice/colleges/${collegeId}/mocks/${mockId}`;
 }
@@ -109,6 +115,7 @@ export function collegeHostRoute(pathname: string): { kind: "next" | "redirect" 
     if (rest === "/logo") return { kind: "redirect", path: "/logo" };
     if (rest === "/report") return { kind: "redirect", path: "/report" };
     if (rest === "/mock-report") return { kind: "redirect", path: "/mock-report" };
+    if (rest === "/students" || rest === "/students/add" || rest === "/students/upload") return { kind: "redirect", path: rest };
     const modulePath = rest.match(new RegExp(`^\\/modules\\/${MODULE_PATH}(\\/new|\\/import)?$`));
     if (modulePath) return { kind: "redirect", path: `/${modulePath[1]}${modulePath[2] ?? ""}` };
     const question = rest.match(/^\/questions\/([^/]+)$/);
@@ -124,6 +131,9 @@ export function collegeHostRoute(pathname: string): { kind: "next" | "redirect" 
   if (pathname === "/logo") return { kind: "rewrite", path: "/practice/colleges/host/logo" };
   if (pathname === "/report") return { kind: "rewrite", path: "/practice/colleges/host/report" };
   if (pathname === "/mock-report") return { kind: "rewrite", path: "/practice/colleges/host/mock-report" };
+  if (pathname === "/students" || pathname === "/students/add" || pathname === "/students/upload") {
+    return { kind: "rewrite", path: `/practice/colleges/host${pathname}` };
+  }
 
   const question = pathname.match(/^\/questions\/([^/]+)$/);
   if (question) return { kind: "rewrite", path: `/practice/colleges/host/questions/${question[1]}` };

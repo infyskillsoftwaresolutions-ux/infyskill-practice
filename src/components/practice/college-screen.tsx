@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { CollegeDesk } from "@/components/practice/college-desk";
-import { getPracticeCollege, listCollegeAdmins, listCollegeStudents, listEmployees } from "@/lib/practice";
+import { getPracticeCollege, listCollegeAdmins, listEmployees } from "@/lib/practice";
 import { collegeAccessMessage, collegeReportOpen, listPracticeInvoices, readPracticeAccess } from "@/lib/practice-access";
 import { listMockQuestionOptions, listMockResults, listMocks } from "@/lib/practice-mocks";
 import { collegeReport } from "@/lib/practice-report";
@@ -20,7 +20,6 @@ export async function CollegeScreen({ collegeId }: { collegeId: string }) {
     <CollegeDesk
       role={user.role}
       college={college}
-      students={user.role === "employee" ? [] : listCollegeStudents(collegeId)}
       collegeAdmins={manage ? listCollegeAdmins(collegeId) : []}
       employees={manage ? listEmployees() : []}
       modules={listModuleCards(user, collegeId)}

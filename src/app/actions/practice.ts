@@ -7,6 +7,7 @@ import {
   addEmployee,
   addStudent,
   authenticate,
+  importStudents,
   createPracticeCollege,
   ensureMainAdmin,
   removeCollegeAdmin,
@@ -93,6 +94,22 @@ export async function addStudentAction(collegeId: string, input: unknown): Promi
     return { ok: true, id };
   } catch (error) {
     return failed(error);
+  }
+}
+
+export async function importStudentsAction(
+  collegeId: string,
+  source: string,
+): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  try {
+    if (!(await mainAdmin())) return { ok: false, error: "Only the main admin can add students." };
+    const count = importStudents(collegeId, source);
+    refresh();
+    return { ok: true, count };
+  } catch (error) {
+    if (error instanceof ValidationError) return { ok: false, error: error.message };
+    console.error(error);
+    return { ok: false, error: "Something went wrong. Try again." };
   }
 }
 

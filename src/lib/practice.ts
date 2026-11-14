@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { assertStudentSeats } from "@/lib/practice-access";
 import { hashPassword, localAdminLogin, verifyPassword, type PracticeRole, type PracticeViewer } from "@/lib/practice-auth";
 import { RESERVED_SLUGS } from "@/lib/practice-host";
+import { StudentImportError, studentsFromCsv } from "@/lib/practice-student-import";
 
 export { ValidationError };
 
@@ -286,6 +287,7 @@ export function addStudent(collegeId: string, input: unknown) {
   const department = text(record.department, "Department", 80, true);
   const studyYear = text(record.studyYear, "Year", 20, true);
   const password = passwordOf(record.password);
+  if (userByEmail(email)) throw new ValidationError("That email is already used.");
   const duplicateRoll = getDb()
     .prepare(
       `SELECT u.id
@@ -307,6 +309,34 @@ export function addStudent(collegeId: string, input: unknown) {
   const id = insertUser("student", fullName, email, password, { rollNumber, department, studyYear });
   grant(id, collegeId);
   return id;
+}
+
+export function importStudents(collegeId: string, source: string) {
+  assertPracticeCollege(collegeId);
+  let rows;
+  try {
+    rows = studentsFromCsv(source);
+  } catch (error) {
+    if (error instanceof StudentImportError) throw new ValidationError(error.message);
+    throw error;
+  }
+  const db = getDb();
+  db.exec("BEGIN");
+  try {
+    rows.forEach((row) => {
+      try {
+        addStudent(collegeId, row.input);
+      } catch (error) {
+        if (!(error instanceof ValidationError)) throw error;
+        throw new ValidationError(`Row ${row.line}: ${error.message}`);
+      }
+    });
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+  return rows.length;
 }
 
 export function removeStudent(collegeId: string, userId: string) {

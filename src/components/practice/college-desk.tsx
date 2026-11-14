@@ -5,11 +5,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import {
   addCollegeAdminAction,
-  addStudentAction,
   linkPracticeInvoiceAction,
   removeCollegeAdminAction,
   removeCollegeLogoAction,
-  removeStudentAction,
   saveCollegeLogoAction,
   setEmployeeAccessAction,
   setPracticeWebAddressAction,
@@ -19,7 +17,7 @@ import { CollegeReportView } from "@/components/practice/college-report";
 import { MockBoard } from "@/components/practice/mock-board";
 import { ModuleRail } from "@/components/practice/module-rail";
 import { usePracticeSite } from "@/components/practice/practice-site";
-import { collegeHref } from "@/lib/practice-host";
+import { collegeHref, studentsHref } from "@/lib/practice-host";
 import type { PracticeCollegeSummary, PracticeEmployee, PracticePerson } from "@/lib/practice";
 import type { PracticeAccess, PracticeInvoiceOption } from "@/lib/practice-access";
 import type { MockQuestionOption, MockResultRow, MockSummary } from "@/lib/practice-mocks";
@@ -33,7 +31,6 @@ const inputClass =
 export function CollegeDesk({
   role,
   college,
-  students,
   collegeAdmins,
   employees,
   modules,
@@ -48,7 +45,6 @@ export function CollegeDesk({
 }: {
   role: PracticeRole;
   college: PracticeCollegeSummary;
-  students: PracticePerson[];
   collegeAdmins: PracticePerson[];
   employees: PracticeEmployee[];
   modules: ModuleCard[];
@@ -72,6 +68,7 @@ export function CollegeDesk({
         modules={modules}
         homeHref={collegeHref(college.id, onHost)}
         homeLabel="College"
+        studentCount={college.studentCount}
       />
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <header>
@@ -86,9 +83,9 @@ export function CollegeDesk({
         </div>
         <p className="mt-1 max-w-xl text-sm leading-6 text-muted">
           {canManage
-            ? "Add modules and questions for this college. Employees can draft questions. You publish them."
+            ? "Add modules and questions for this college. Add this college’s students from the left."
             : role === "college_admin"
-              ? "Published questions, attempt counts, and the student download for this college."
+              ? "Published questions, attempt counts, and this college’s students are on the left."
               : "Draft questions here. The main admin publishes them for students."}
         </p>
       </header>
@@ -112,10 +109,17 @@ export function CollegeDesk({
       ) : null}
 
       <section className="grid gap-3 sm:grid-cols-3">
-        <article className="rounded-2xl border border-line bg-card px-4 py-4">
-          <p className="text-sm text-muted">Students</p>
-          <p className="mt-1 text-2xl font-semibold text-ink">{college.studentCount}</p>
-        </article>
+        {role === "employee" ? (
+          <article className="rounded-2xl border border-line bg-card px-4 py-4">
+            <p className="text-sm text-muted">Students</p>
+            <p className="mt-1 text-2xl font-semibold text-ink">{college.studentCount}</p>
+          </article>
+        ) : (
+          <Link href={studentsHref(college.id, onHost)} className="rounded-2xl border border-line bg-card px-4 py-4 hover:border-accent">
+            <p className="text-sm text-muted">Students</p>
+            <p className="mt-1 text-2xl font-semibold text-ink">{college.studentCount}</p>
+          </Link>
+        )}
         <article className="rounded-2xl border border-line bg-card px-4 py-4">
           <p className="text-sm text-muted">College admins</p>
           <p className="mt-1 text-2xl font-semibold text-ink">{college.collegeAdminCount}</p>
@@ -125,19 +129,6 @@ export function CollegeDesk({
           <p className="mt-1 text-2xl font-semibold text-ink">{college.employeeCount}</p>
         </article>
       </section>
-
-      {role !== "employee" ? (
-        <PeopleSection
-          title="Students"
-          empty="No students yet."
-          people={students}
-          columns={["roll", "department", "year"]}
-          canRemove={canManage}
-          onRemove={(userId) => removeStudentAction(college.id, userId)}
-        >
-          {canManage ? <StudentForm collegeId={college.id} /> : null}
-        </PeopleSection>
-      ) : null}
 
       {canManage ? (
         <PeopleSection
@@ -408,58 +399,6 @@ function AccessPanel({
         </form>
       ) : null}
     </section>
-  );
-}
-
-function StudentForm({ collegeId }: { collegeId: string }) {
-  const router = useRouter();
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [rollNumber, setRollNumber] = useState("");
-  const [department, setDepartment] = useState("");
-  const [studyYear, setStudyYear] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [pending, startTransition] = useTransition();
-
-  function submit(event: React.FormEvent) {
-    event.preventDefault();
-    setError("");
-    startTransition(async () => {
-      const result = await addStudentAction(collegeId, { fullName, email, rollNumber, department, studyYear, password });
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      setFullName("");
-      setEmail("");
-      setRollNumber("");
-      setDepartment("");
-      setStudyYear("");
-      setPassword("");
-      router.refresh();
-    });
-  }
-
-  return (
-    <form onSubmit={submit} className="grid gap-3 border-b border-line px-4 py-4 sm:grid-cols-2">
-      {error ? <p className="rounded-lg bg-[#fdecec] px-3 py-2 text-sm text-danger sm:col-span-2">{error}</p> : null}
-      <Field label="Student name" value={fullName} onChange={setFullName} />
-      <Field label="Email" type="email" value={email} onChange={setEmail} />
-      <Field label="Roll number" value={rollNumber} onChange={setRollNumber} />
-      <Field label="Department" value={department} onChange={setDepartment} />
-      <Field label="Year" value={studyYear} onChange={setStudyYear} />
-      <Field label="Password" value={password} onChange={setPassword} />
-      <div className="sm:col-span-2">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-lg bg-accent px-3.5 py-2 text-sm font-medium text-white hover:bg-[#3e5ae0] disabled:opacity-60"
-        >
-          {pending ? "Adding…" : "Add student"}
-        </button>
-      </div>
-    </form>
   );
 }
 

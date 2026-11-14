@@ -70,6 +70,7 @@ export default async function PracticeModulePage({ params }: { params: Promise<{
       moduleLabel={label}
       questions={questions}
       modules={listModuleCards(gate.user, college.id)}
+      studentCount={college.studentCount}
     />
   );
 }

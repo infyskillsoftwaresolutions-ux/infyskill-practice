@@ -22,6 +22,7 @@ export function QuestionList({
   moduleLabel,
   questions,
   modules,
+  studentCount = 0,
 }: {
   role: PracticeRole;
   collegeId: string;
@@ -32,6 +33,7 @@ export function QuestionList({
   moduleLabel: string;
   questions: QuestionListItem[];
   modules: ModuleCard[];
+  studentCount?: number;
 }) {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -76,6 +78,7 @@ export function QuestionList({
         activeKey={moduleKey}
         homeHref={overview}
         homeLabel={role === "student" ? "Practice" : "College"}
+        studentCount={studentCount}
       />
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
